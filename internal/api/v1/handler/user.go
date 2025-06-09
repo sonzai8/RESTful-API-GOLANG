@@ -1,6 +1,10 @@
 package v1handler
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"net/http"
+)
 
 type UserHandler struct{}
 
@@ -14,8 +18,17 @@ func (u *UserHandler) GetUsers(ctx *gin.Context) {
 	})
 }
 func (u *UserHandler) GetUserById(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	_, err := uuid.Parse(idStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "Id must be a uuid",
+		})
+		return
+	}
+
 	ctx.JSON(200, gin.H{
-		"message": "get user by id",
+		"message": "get user by id " + idStr,
 	})
 }
 

@@ -1,6 +1,11 @@
 package v1handler
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"regexp"
+)
+
+var slugRegex = regexp.MustCompile(`^[a-z0-9]+(?:[-,.][a-z0-9]+)*$`)
 
 type ProductHandler struct{}
 
@@ -18,6 +23,21 @@ func (p *ProductHandler) GetProductById(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{
 		"message": "get Product by id",
 	})
+}
+
+func (p *ProductHandler) GetProductBySlug(ctx *gin.Context) {
+	slug := ctx.Param("slug")
+
+	if !slugRegex.MatchString(slug) {
+		ctx.JSON(200, gin.H{
+			"message": "can not parse slug",
+		})
+		return
+	}
+	ctx.JSON(200, gin.H{
+		"message": "get Product by slug" + slug,
+	})
+
 }
 
 func (p *ProductHandler) UpdateProduct(ctx *gin.Context) {

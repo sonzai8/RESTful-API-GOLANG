@@ -9,6 +9,7 @@ func main() {
 	r := gin.Default()
 	v1User := v1handler.NewUserHandler()
 	v1Product := v1handler.NewProductHandler()
+	v1Category := v1handler.NewCategoryHandler()
 	v1 := r.Group("api/v1")
 	{
 		users := v1.Group("/users")
@@ -23,10 +24,21 @@ func main() {
 		products := v1.Group("/products")
 		{
 			products.GET("/", v1Product.GetProducts)
-			products.GET("/:id", v1Product.GetProductById)
+			//products.GET("/:id", v1Product.GetProductById)
+			products.GET("/:slug", v1Product.GetProductBySlug)
 			products.PATCH("/:id", v1Product.UpdateProduct)
 			products.POST("/:id", v1Product.CreateProduct)
 			products.DELETE("/:id", v1Product.DeleteProduct)
+		}
+
+		categories := v1.Group("/categories")
+		{
+			categories.GET("/", v1Category.GetCategories)
+			//products.GET("/:id", v1Product.GetProductById)
+			categories.GET("/:category", v1Category.GetCategoriesByMap)
+			categories.PATCH("/:id", v1Category.UpdateCategory)
+			categories.POST("/:id", v1Category.CreateCategory)
+			categories.DELETE("/:id", v1Category.DeleteCategory)
 		}
 
 	}
