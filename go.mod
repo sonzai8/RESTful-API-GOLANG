@@ -1,3 +1,3 @@
-module RESTFUL_API_GOLANG
+module main
 
 go 1.24
