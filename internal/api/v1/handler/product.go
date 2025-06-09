@@ -2,6 +2,7 @@ package v1handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"main/internal/utils"
 	"regexp"
 )
 
@@ -14,6 +15,19 @@ func NewProductHandler() *ProductHandler {
 }
 
 func (p *ProductHandler) GetProducts(ctx *gin.Context) {
+	search := ctx.Query("search")
+	if err := utils.ValidationRequired("search", search); err != nil {
+		ctx.JSON(200, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	if err := utils.ValidationStringLength("search", search, 50, 3); err != nil {
+		ctx.JSON(200, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
 	ctx.JSON(200, gin.H{
 		"message": "get list of Product",
 	})
@@ -28,12 +42,13 @@ func (p *ProductHandler) GetProductById(ctx *gin.Context) {
 func (p *ProductHandler) GetProductBySlug(ctx *gin.Context) {
 	slug := ctx.Param("slug")
 
-	if !slugRegex.MatchString(slug) {
+	if err := utils.ValidationRegex("slug", slug, slugRegex); err != nil {
 		ctx.JSON(200, gin.H{
-			"message": "can not parse slug",
+			"message": err.Error(),
 		})
 		return
 	}
+
 	ctx.JSON(200, gin.H{
 		"message": "get Product by slug" + slug,
 	})
