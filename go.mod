@@ -1,0 +1,3 @@
+module RESTFUL_API_GOLANG
+
+go 1.24
