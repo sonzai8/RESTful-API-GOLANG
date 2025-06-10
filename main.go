@@ -3,10 +3,14 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	v1handler "main/internal/api/v1/handler"
+	"main/internal/utils"
 )
 
 func main() {
 	r := gin.Default()
+	if err := utils.RegisterValidators(); err != nil {
+		panic(err)
+	}
 	v1User := v1handler.NewUserHandler()
 	v1Product := v1handler.NewProductHandler()
 	v1Category := v1handler.NewCategoryHandler()
@@ -27,7 +31,7 @@ func main() {
 			//products.GET("/:id", v1Product.GetProductById)
 			products.GET("/:slug", v1Product.GetProductBySlug)
 			products.PATCH("/:id", v1Product.UpdateProduct)
-			products.POST("/:id", v1Product.CreateProduct)
+			products.POST("/", v1Product.CreateProduct)
 			products.DELETE("/:id", v1Product.DeleteProduct)
 		}
 

@@ -2,14 +2,13 @@ package v1handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"main/internal/utils"
+	"net/http"
 )
 
-var validCategories = map[string]bool{
-	"php":    true,
-	"python": true,
-	"golang": true,
+type GetCategoriesByMapParams struct {
+	Category string `uri:"category" binding:"oneof=php python golang"`
 }
-
 type CategoryHandler struct{}
 
 func NewCategoryHandler() *CategoryHandler {
@@ -23,15 +22,13 @@ func (p *CategoryHandler) GetCategories(ctx *gin.Context) {
 }
 
 func (p *CategoryHandler) GetCategoriesByMap(ctx *gin.Context) {
-	category := ctx.Param("category")
-	if !validCategories[category] {
-		ctx.JSON(200, gin.H{
-			"message": "can not parse category",
-		})
+	var params GetCategoriesByMapParams
+	if err := ctx.ShouldBindUri(&params); err != nil {
+		ctx.JSON(http.StatusBadRequest, utils.HandleValidationErrors(err))
 		return
 	}
 	ctx.JSON(200, gin.H{
-		"message": "get Category " + category,
+		"message": "get Category ",
 	})
 }
 
