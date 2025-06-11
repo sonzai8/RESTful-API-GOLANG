@@ -2,12 +2,22 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"log"
 	v1handler "main/internal/api/v1/handler"
+	"main/internal/middleware"
 	"main/internal/utils"
+	"os"
 )
 
 func main() {
 	r := gin.Default()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	TestEnv := os.Getenv("TEST_ENV")
+	log.Println(TestEnv)
 	if err := utils.RegisterValidators(); err != nil {
 		panic(err)
 	}
@@ -15,6 +25,7 @@ func main() {
 	v1Product := v1handler.NewProductHandler()
 	v1Category := v1handler.NewCategoryHandler()
 	v1 := r.Group("api/v1")
+	v1.Use(middleware.ApiKeyMiddleware())
 	{
 		users := v1.Group("/users")
 		{
