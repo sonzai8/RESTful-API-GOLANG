@@ -1,3 +1,5 @@
+0.0.6: Ratelimit API
+
 0.0.5: Middleware API Key, dotenv
 
 0.0.4: Validate JSON Body Nâng Cao-Slice, Nested Struct, Map & Interface (any)

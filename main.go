@@ -16,6 +16,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+	go middleware.CleanUpClients()
 	TestEnv := os.Getenv("TEST_ENV")
 	log.Println(TestEnv)
 	if err := utils.RegisterValidators(); err != nil {
@@ -25,7 +26,7 @@ func main() {
 	v1Product := v1handler.NewProductHandler()
 	v1Category := v1handler.NewCategoryHandler()
 	v1 := r.Group("api/v1")
-	v1.Use(middleware.ApiKeyMiddleware())
+	v1.Use(middleware.ApiKeyMiddleware(), middleware.RateLimitingMiddleware())
 	{
 		users := v1.Group("/users")
 		{
