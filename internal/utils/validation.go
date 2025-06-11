@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"log"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -27,25 +28,52 @@ func HandleValidationErrors(err error) gin.H {
 		errors := make(map[string]string)
 
 		for _, e := range validationError {
+			log.Printf("%s", e.Namespace())
+			root := strings.Split(e.Namespace(), ".")[0]
+			rawPath := strings.TrimPrefix(e.Namespace(), root+".")
+
+			parts := strings.Split(rawPath, ".")
+
+			for i, p := range parts {
+				if strings.Contains(p, "[") {
+					idx := strings.Index(parts[i], "[")
+					base := camelToSnake(p[:idx])
+					index := p[idx:]
+					parts[i] = base + index
+				} else {
+					parts[i] = camelToSnake(p)
+				}
+
+			}
+			fieldPath := strings.Join(parts, ".")
+
 			switch e.Tag() {
 			case "required":
-				errors[e.Field()] = e.Field() + " is required"
+				errors[fieldPath] = fmt.Sprintf("%s is required", fieldPath)
+			case "gt":
+				errors[fieldPath] = fmt.Sprintf("%s must be greater than %s", fieldPath, e.Param())
+			case "lt":
+				errors[fieldPath] = fmt.Sprintf("%s must be less than %s", fieldPath, e.Param())
 			case "slug":
-				errors[e.Field()] = e.Field() + " is must be slug"
+				errors[fieldPath] = fmt.Sprintf("%s is must be slug", fieldPath)
 			case "min":
-				errors[e.Field()] = e.Field() + " must be greater than " + e.Param()
+				errors[fieldPath] = fmt.Sprintf("%s must be greater than %s", fieldPath, e.Param())
 			case "max":
-				errors[e.Field()] = e.Field() + " must be less than " + e.Param()
+				errors[fieldPath] = fmt.Sprintf("%s must be less than %s", fieldPath, e.Param())
 			case "oneof":
-				errors[e.Field()] = e.Field() + " must be one of the following values: " + strings.Join(strings.Split(e.Param(), " "), ",")
+				errors[fieldPath] = fmt.Sprintf("%s must be one of the following values: %s",
+					fieldPath, strings.Join(strings.Split(e.Param(), " "), ","))
 			case "min_int":
-				errors[e.Field()] = e.Field() + " must be less than " + e.Param()
+				errors[fieldPath] = fmt.Sprintf("%s must be less than %s", fieldPath, e.Param())
 			case "max_int":
-				errors[e.Field()] = e.Field() + " must be greater than " + e.Param()
+				errors[fieldPath] = fmt.Sprintf("%s must be greater than %s", fieldPath, e.Param())
 			case "file_ext":
-				errors[e.Field()] = e.Field() + " invalid ext: " + e.Param()
+				errors[fieldPath] = fmt.Sprintf("%s invalid ext: %s", fieldPath, e.Param())
+			case "email":
+				errors[fieldPath] = fmt.Sprintf("%s must be in correct email format: %s", fieldPath, e.Param())
+
 			default:
-				errors[e.Field()] = e.Field() + " is invalid"
+				errors[fieldPath] = fmt.Sprintf("%s is invalid", fieldPath)
 			}
 
 		}

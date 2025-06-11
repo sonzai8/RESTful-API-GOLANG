@@ -3,6 +3,8 @@ package v1handler
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"log"
 	"main/internal/utils"
 	"net/http"
 	"regexp"
@@ -21,10 +23,23 @@ type GetProductsBySlugParam struct {
 }
 
 type CreateProductParams struct {
-	Name    string       `json:"name" binding:"required,min=5,max=100"`
-	Price   int          `json:"price" binding:"required,min_int=1000,max_int=10000000"`
-	Display *bool        `json:"display" binding:"omitempty"`
-	Image   ProductImage `json:"image" binding:"required"`
+	Name             string                 `json:"name" binding:"required,min=5,max=100"`
+	Price            int                    `json:"price" binding:"required,min_int=1000,max_int=10000000"`
+	Display          *bool                  `json:"display" binding:"omitempty"`
+	Image            ProductImage           `json:"image" binding:"required"`
+	Tags             []string               `json:"tags" binding:"required,gt=3,lt=10"`
+	ProductAttribute []ProductAttribute     `json:"product_attribute" binding:"required,gt=0,dive"`
+	ProductInfo      map[string]ProductInfo `json:"product_info" binding:"required,gt=0,dive"`
+	ProductMetaData  map[string]any         `json:"product_metadata" binding:"omitempty,gt=0,dive"`
+}
+
+type ProductInfo struct {
+	InfoKey   string `json:"info_key" binding:"required"`
+	InfoValue string `json:"info_value" binding:"required"`
+}
+type ProductAttribute struct {
+	AttributeName  string `json:"attribute_name" binding:"required"`
+	AttributeValue string `json:"attribute_value" binding:"required"`
 }
 type ProductImage struct {
 	ImageName string `json:"image_name" binding:"required,file_ext=jpg"`
@@ -98,6 +113,16 @@ func (p *ProductHandler) CreateProduct(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, utils.HandleValidationErrors(err))
 		return
 	}
+
+	for key := range params.ProductInfo {
+		log.Println(key)
+		if _, err := uuid.Parse(key); err != nil {
+			ctx.JSON(http.StatusBadRequest, utils.HandleValidationErrors(err))
+			return
+		}
+
+	}
+
 	ctx.JSON(200, gin.H{
 		"message": "Create Product",
 	})
