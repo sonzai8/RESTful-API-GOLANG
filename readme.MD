@@ -1,3 +1,5 @@
+0.0.7: Zerolog
+
 0.0.6: Ratelimit API
 
 0.0.5: Middleware API Key, dotenv

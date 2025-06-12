@@ -26,7 +26,11 @@ func main() {
 	v1Product := v1handler.NewProductHandler()
 	v1Category := v1handler.NewCategoryHandler()
 	v1 := r.Group("api/v1")
-	v1.Use(middleware.ApiKeyMiddleware(), middleware.RateLimitingMiddleware())
+	v1.Use(
+		middleware.LoggerMiddleware(),
+		middleware.ApiKeyMiddleware(),
+		middleware.RateLimitingMiddleware(),
+	)
 	{
 		users := v1.Group("/users")
 		{

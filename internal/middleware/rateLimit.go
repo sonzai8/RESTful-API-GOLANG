@@ -69,5 +69,6 @@ func RateLimitingMiddleware() gin.HandlerFunc {
 			})
 			return
 		}
+		ctx.Next()
 	}
 }
