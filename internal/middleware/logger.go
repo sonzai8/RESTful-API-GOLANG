@@ -1,8 +1,11 @@
 package middleware
 
 import (
+	"bytes"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -23,6 +26,19 @@ func LoggerMiddleware() gin.HandlerFunc {
 
 	return func(ctx *gin.Context) {
 		start := time.Now().Second()
+
+		bodyBytes, err := io.ReadAll(ctx.Request.Body)
+		if err != nil {
+			logger.Error().Err(err).Msg("Failed to read request body")
+		}
+
+		ctx.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+		fmt.Printf("%+v", string(bodyBytes))
+
+		fmt.Printf("-----------------")
+
+		fmt.Printf("%+v", ctx.Request.Body)
 
 		ctx.Next()
 
