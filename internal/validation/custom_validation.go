@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"main/internal/utils"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -11,13 +12,52 @@ import (
 
 func RegisterCustomValidations(v *validator.Validate) {
 
+	v.RegisterValidation("password_strong", func(fl validator.FieldLevel) bool {
+		password := fl.Field().String()
+		if len(password) < 8 {
+			return false
+		}
+		hasUpper := false
+		hasLower := false
+		hasNumber := false
+		hasSpecial := false
+
+		for _, char := range password {
+			switch {
+			case char >= 'A' && char <= 'Z':
+				hasUpper = true
+			case char >= 'a' && char <= 'z':
+				hasLower = true
+			case char >= '0' && char <= '9':
+				hasNumber = true
+			case strings.ContainsRune("!@#$%^&*()-_=+[]{}|;:,.<>?/", char):
+				hasSpecial = true
+			}
+		}
+
+		return hasUpper && hasLower && hasNumber && hasSpecial
+	})
+
+	var blockedDomain = map[string]bool{
+		"blacklist.com": true,
+		"edu.com":       true,
+		"abc.com":       true,
+	}
+	v.RegisterValidation("email_advanced", func(fl validator.FieldLevel) bool {
+		email := fl.Field().String()
+		parts := strings.Split(email, "@")
+		if len(parts) != 2 {
+			return false
+		}
+		domain := utils.NormalizeString(parts[1])
+		return !blockedDomain[domain]
+
+	})
+
 	var slugRegex = regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*$`)
-	err := v.RegisterValidation("slug", func(fl validator.FieldLevel) bool {
+	v.RegisterValidation("slug", func(fl validator.FieldLevel) bool {
 		return slugRegex.MatchString(fl.Field().String())
 	})
-	if err != nil {
-		panic(err)
-	}
 
 	var searchRegex = regexp.MustCompile(`^[a-zA-Z0-9\s]+$`)
 	v.RegisterValidation("search", func(fl validator.FieldLevel) bool {

@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
@@ -89,4 +90,8 @@ func saveFile(fileHeader *multipart.FileHeader, destination string) error {
 	_, err = io.Copy(out, src)
 
 	return err
+}
+func ResponseValidator(ctx *gin.Context, data any) {
+	ctx.JSON(http.StatusBadRequest, data)
+
 }

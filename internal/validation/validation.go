@@ -83,6 +83,10 @@ func HandleValidationErrors(err error) gin.H {
 				errors[fieldPath] = fmt.Sprintf("%s invalid ext: %s", fieldPath, e.Param())
 			case "email":
 				errors[fieldPath] = fmt.Sprintf("%s must be in correct email format: %s", fieldPath, e.Param())
+			case "email_advanced":
+				errors[fieldPath] = fmt.Sprintf("%s is not allowed domain", fieldPath)
+			case "password_strong":
+				errors[fieldPath] = fmt.Sprintf("%s is not strong enough", fieldPath)
 
 			default:
 				errors[fieldPath] = fmt.Sprintf("%s is invalid", fieldPath)

@@ -1,3 +1,5 @@
+0.0.9:  Xây Dựng API Lấy Danh Sách & Chi Tiết User (Get All & Get by UUID)
+
 0.0.8: Tái Sử Dụng Middleware & Utilities | Tối Ưu Project Gin Hiệu Quả
 
 0.0.7: Zerolog
