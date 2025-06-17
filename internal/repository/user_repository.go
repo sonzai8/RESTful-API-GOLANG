@@ -15,7 +15,8 @@ func NewInMemoryUserRepository() UserRepository {
 }
 
 // FindAll returns all users in the repository
-func (r *InMemoryUserRepository) FindAll() ([]models.User, error) {
+func (r *InMemoryUserRepository) FindAll(search string, page, limit int) ([]models.User, error) {
+
 	return r.users, nil
 }
 

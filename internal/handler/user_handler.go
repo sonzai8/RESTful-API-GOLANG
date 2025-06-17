@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"main/internal/dto"
 	"main/internal/models"
 	"main/internal/services"
@@ -19,6 +20,12 @@ type GetUserByUUIDParams struct {
 	Uuid string `uri:"uuid" binding:"required,uuid"`
 }
 
+type GetUsersParams struct {
+	Search string `form:"search" binding:"omitempty,max=100,search"`
+	Page   int    `form:"page" binding:"omitempty,gt=0"`
+	Limit  int    `form:"limit" binding:"omitempty,gt=0"`
+}
+
 func NewUserHandler(service services.UserService) *UserHandler {
 	return &UserHandler{
 		service: service,
@@ -26,7 +33,22 @@ func NewUserHandler(service services.UserService) *UserHandler {
 }
 
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
-	users, err := h.service.GetAllUsers("", 1, 10)
+	var params GetUsersParams
+	if err := c.ShouldBindQuery(&params); err != nil {
+		utils.ResponseValidator(c, validation.HandleValidationErrors(err))
+		return
+	}
+
+	if params.Page <= 0 {
+		params.Page = 1
+	}
+	if params.Limit <= 0 {
+		params.Limit = 10
+	}
+
+	log.Printf("Search: %s, Page: %d, Limit: %d", params.Search, params.Page, params.Limit)
+
+	users, err := h.service.GetAllUsers(params.Search, params.Page, params.Limit)
 	if err != nil {
 		utils.ReponseErr(c, err)
 		return

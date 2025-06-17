@@ -1,9 +1,11 @@
 package services
 
 import (
+	"log"
 	"main/internal/models"
 	"main/internal/repository"
 	"main/internal/utils"
+	"strings"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -21,7 +23,42 @@ func NewUserService(repo repository.UserRepository) UserService {
 
 func (us *userService) GetAllUsers(search string, page, limit int) ([]models.User, error) {
 
-	return us.repo.FindAll()
+	users, err := us.repo.FindAll(search, page, limit)
+
+	if err != nil {
+		return nil, utils.WrapError(err, "Failed to fetch users", utils.ErrCodeInternalServer)
+	}
+	if len(users) == 0 {
+		return nil, utils.NewError("No users found", utils.ErrCodeNotFound)
+	}
+	var filteredUsers []models.User
+
+	if search == "" {
+		filteredUsers = users
+	} else {
+		search = strings.ToLower(search)
+		for _, user := range users {
+			name := strings.ToLower(user.Name)
+			email := strings.ToLower(user.Email)
+			if strings.Contains(email, search) || strings.Contains(name, search) {
+				log.Print("User found: ", user.Name, " with email: ", user.Email)
+				filteredUsers = append(filteredUsers, user)
+			}
+		}
+
+		startIndex := (page - 1) * limit
+		endIndex := startIndex + limit
+		if startIndex >= len(filteredUsers) {
+			return nil, utils.NewError("No users found for the given page", utils.ErrCodeNotFound)
+		}
+		if endIndex > len(filteredUsers) {
+			endIndex = len(filteredUsers)
+		}
+		filteredUsers = filteredUsers[startIndex:endIndex]
+
+	}
+	return filteredUsers, nil
+
 }
 func (us *userService) CreateUser(user models.User) (models.User, error) {
 	user.Email = utils.NormalizeString(user.Email)
