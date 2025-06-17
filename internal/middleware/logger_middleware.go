@@ -3,18 +3,19 @@ package middleware
 import (
 	"bytes"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 )
 
 func LoggerMiddleware() gin.HandlerFunc {
 
-	logPath := "logs/http.log"
+	logPath := "../../logs/http.log"
 	if err := os.MkdirAll(filepath.Dir(logPath), os.ModePerm); err != nil {
 		panic(err)
 	}

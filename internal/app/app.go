@@ -1,15 +1,18 @@
 package app
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"log"
 	"main/internal/config"
-	"main/internal/routers"
+	"main/internal/validation"
+
+	"main/internal/routes"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 type Module interface {
-	Router() routers.Route
+	Routes() routes.Route
 }
 type Application struct {
 	config *config.Config
@@ -19,16 +22,13 @@ type Application struct {
 
 func NewApplication(cfg *config.Config) *Application {
 	loadEnv()
+	validation.InitValidator()
 	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"hello": "world",
-		})
-	})
 
 	modules := []Module{
-		New
+		NewUserModule(),
 	}
+	routes.RegisterRouter(r, getModuleRoutes(modules)...)
 
 	return &Application{
 		config: cfg,
@@ -41,8 +41,17 @@ func (a *Application) Run() error {
 }
 
 func loadEnv() {
-	err := godotenv.Load()
+	err := godotenv.Load("../../.env")
 	if err != nil {
 		log.Println("Error loading .env file")
 	}
+}
+
+func getModuleRoutes(modules []Module) []routes.Route {
+
+	var routes []routes.Route
+	for _, m := range modules {
+		routes = append(routes, m.Routes())
+	}
+	return routes
 }

@@ -1,11 +1,12 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
-	"golang.org/x/time/rate"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"golang.org/x/time/rate"
 )
 
 type Client struct {
@@ -59,7 +60,7 @@ func CleanUpClients() {
 
 // ab -n 20 -c 1 localhost:8084/api/v1/categories
 // wrk -t4 -c100 -d10s localhost:8084/api/v1/categories
-func RateLimitingMiddleware() gin.HandlerFunc {
+func RateLimiterMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ip := getClientIP(ctx)
 		limiter := getRateLimiter(ip)

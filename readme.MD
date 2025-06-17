@@ -1,3 +1,5 @@
+0.0.8: Tái Sử Dụng Middleware & Utilities | Tối Ưu Project Gin Hiệu Quả
+
 0.0.7: Zerolog
 
 0.0.6: Ratelimit API

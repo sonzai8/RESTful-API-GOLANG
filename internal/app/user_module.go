@@ -1,12 +1,28 @@
 package app
 
-import "main/internal/routers"
+import (
+	"main/internal/handler"
+	"main/internal/repository"
+	"main/internal/routes"
+	"main/internal/services"
+)
 
 type UserModule struct {
-	routers routers.Route
+	routes routes.Route
 }
 
 func NewUserModule() *UserModule {
+	repo := repository.NewInMemoryUserRepository()
+	service := services.NewUserService(repo)
+	handler := handler.NewUserHandler(service)
+	usersRouter := routes.NewUserRoutes(handler)
 
-	return &UserModule{}
+	return &UserModule{
+		routes: usersRouter,
+	}
+}
+
+func (um *UserModule) Routes() routes.Route {
+
+	return um.routes
 }
