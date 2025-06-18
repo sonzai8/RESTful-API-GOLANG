@@ -3,7 +3,6 @@ package handler
 import (
 	"log"
 	"main/internal/dto"
-	"main/internal/models"
 	"main/internal/services"
 	"main/internal/utils"
 	"main/internal/validation"
@@ -81,13 +80,13 @@ func (h *UserHandler) GetUserByUUID(c *gin.Context) {
 }
 
 func (h *UserHandler) CreateUser(ctx *gin.Context) {
-	var params models.User
-	if err := ctx.ShouldBindJSON(&params); err != nil {
+	var input dto.CreateUserInput
+	if err := ctx.ShouldBindJSON(&input); err != nil {
 		utils.ResponseValidator(ctx, validation.HandleValidationErrors(err))
 		return
 	}
-
-	created_user, err := h.service.CreateUser(params)
+	new_user := input.MapCreateUserInputToModel()
+	created_user, err := h.service.CreateUser(new_user)
 
 	if err != nil {
 		utils.ReponseErr(ctx, err)
@@ -98,10 +97,38 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 
 }
 
-func (h *UserHandler) UpdateUser(c *gin.Context) {
+func (h *UserHandler) UpdateUser(ctx *gin.Context) {
+	var params GetUserByUUIDParams
+	if err := ctx.ShouldBindUri(&params); err != nil {
+		utils.ResponseValidator(ctx, validation.HandleValidationErrors(err))
+		return
+	}
+
+	var input dto.UpdateUserInput
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.ResponseValidator(ctx, validation.HandleValidationErrors(err))
+		return
+	}
+	update_user := input.MapUpdateUserInputToModel()
+	updated_user, err := h.service.UpdateUser(params.Uuid, update_user)
+	if err != nil {
+		utils.ReponseErr(ctx, err)
+		return
+	}
+	user_dto := dto.MapUserToDTO(updated_user)
+	utils.ReponseSuccess(ctx, http.StatusOK, user_dto)
 
 }
 
-func (h *UserHandler) DeleteUser(c *gin.Context) {
-
+func (h *UserHandler) DeleteUser(ctx *gin.Context) {
+	var params GetUserByUUIDParams
+	if err := ctx.ShouldBindUri(&params); err != nil {
+		utils.ResponseValidator(ctx, validation.HandleValidationErrors(err))
+		return
+	}
+	if err := h.service.DeleteUser(params.Uuid); err != nil {
+		utils.ReponseErr(ctx, err)
+		return
+	}
+	utils.ResponseStatus(ctx, http.StatusNoContent)
 }

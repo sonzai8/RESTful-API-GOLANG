@@ -12,10 +12,10 @@ type UserModule struct {
 }
 
 func NewUserModule() *UserModule {
-	repo := repository.NewInMemoryUserRepository()
-	service := services.NewUserService(repo)
-	handler := handler.NewUserHandler(service)
-	usersRouter := routes.NewUserRoutes(handler)
+	uRepo := repository.NewInMemoryUserRepository()
+	uService := services.NewUserService(uRepo)
+	uHandler := handler.NewUserHandler(uService)
+	usersRouter := routes.NewUserRoutes(uHandler)
 
 	return &UserModule{
 		routes: usersRouter,
