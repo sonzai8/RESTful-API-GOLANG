@@ -1,0 +1,1 @@
+DROP TABLE if EXISTS products CASCADE;

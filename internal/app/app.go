@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"log"
 	"main/internal/config"
 	"main/internal/validation"
@@ -9,6 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type Module interface {
@@ -22,6 +25,8 @@ type Application struct {
 
 func NewApplication(cfg *config.Config) *Application {
 	loadEnv()
+	db := connectToPostgres()
+	fmt.Printf("%v", db)
 	if err := validation.InitValidator(); err != nil {
 		log.Fatalf("Failed to initialize validator: %v", err)
 	}
@@ -48,6 +53,19 @@ func loadEnv() {
 	if err != nil {
 		log.Println("Error loading .env file")
 	}
+}
+
+func connectToPostgres() *gorm.DB {
+
+	// https://github.com/jackc/pgx
+	dsn := config.NewConfig().DbConNStr
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("connect to db failed")
+	}
+
+	fmt.Printf("db:", db)
+	return db
 }
 
 func getModuleRoutes(modules []Module) []routes.Route {

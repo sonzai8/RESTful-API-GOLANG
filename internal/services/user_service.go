@@ -94,6 +94,7 @@ func (us *userService) UpdateUser(uuid string, user models.User) (models.User, e
 	if !ok {
 		return models.User{}, utils.NewError("User not found", utils.ErrCodeNotFound)
 	}
+
 	current_user.Name = user.Name
 	current_user.Email = utils.NormalizeString(user.Email)
 	current_user.Age = user.Age

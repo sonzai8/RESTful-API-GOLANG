@@ -1,0 +1,2 @@
+ALTER TABLE USERS
+    DROP COLUMN phone;
