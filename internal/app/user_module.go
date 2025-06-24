@@ -1,6 +1,7 @@
 package app
 
 import (
+	"main/internal/db"
 	"main/internal/handler"
 	"main/internal/repository"
 	"main/internal/routes"
@@ -12,7 +13,8 @@ type UserModule struct {
 }
 
 func NewUserModule() *UserModule {
-	uRepo := repository.NewInMemoryUserRepository()
+	db.InitDB()
+	uRepo := repository.NewSQLUserRepository(db.DB)
 	uService := services.NewUserService(uRepo)
 	uHandler := handler.NewUserHandler(uService)
 	usersRouter := routes.NewUserRoutes(uHandler)

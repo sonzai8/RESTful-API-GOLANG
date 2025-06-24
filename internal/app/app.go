@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"log"
 	"main/internal/config"
+	"main/internal/db"
 	"main/internal/validation"
 
 	"main/internal/routes"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -24,9 +24,10 @@ type Application struct {
 }
 
 func NewApplication(cfg *config.Config) *Application {
-	loadEnv()
-	db := connectToPostgres()
-	fmt.Printf("%v", db)
+
+	db.InitDB()
+	//db := connectToPostgres()
+	//fmt.Printf("%v", db)
 	if err := validation.InitValidator(); err != nil {
 		log.Fatalf("Failed to initialize validator: %v", err)
 	}
@@ -45,14 +46,8 @@ func NewApplication(cfg *config.Config) *Application {
 }
 
 func (a *Application) Run() error {
+	fmt.Printf("Starting server...%s", a.config.ServerAddress)
 	return a.router.Run(a.config.ServerAddress)
-}
-
-func loadEnv() {
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		log.Println("Error loading .env file")
-	}
 }
 
 func connectToPostgres() *gorm.DB {

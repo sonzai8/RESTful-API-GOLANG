@@ -1,6 +1,10 @@
 package config
 
-import "os"
+import (
+	"github.com/joho/godotenv"
+	"log"
+	"os"
+)
 
 type Config struct {
 	ServerAddress string
@@ -8,8 +12,18 @@ type Config struct {
 }
 
 func NewConfig() *Config {
+	loadEnv()
+	//log.Printf("sao khong duoc", os.Getenv("APP_PORT"))
 	return &Config{
-		ServerAddress: ":" + os.Getenv("8084"),
+
+		ServerAddress: ":" + os.Getenv("APP_PORT"),
 		DbConNStr:     os.Getenv("DB_CONN_STR"),
+	}
+}
+
+func loadEnv() {
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Println("Error loading .env file")
 	}
 }

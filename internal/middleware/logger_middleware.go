@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -35,11 +34,11 @@ func LoggerMiddleware() gin.HandlerFunc {
 
 		ctx.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
-		fmt.Printf("%+v", string(bodyBytes))
-
-		fmt.Printf("-----------------")
-
-		fmt.Printf("%+v", ctx.Request.Body)
+		//fmt.Printf("%+v", string(bodyBytes))
+		//
+		//fmt.Printf("-----------------")
+		//
+		//fmt.Printf("%+v", ctx.Request.Body)
 
 		ctx.Next()
 

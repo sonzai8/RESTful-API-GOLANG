@@ -63,9 +63,9 @@ func (us *userService) GetAllUsers(search string, page, limit int) ([]models.Use
 func (us *userService) CreateUser(user models.User) (models.User, error) {
 	user.Email = utils.NormalizeString(user.Email)
 
-	if _, exists := us.repo.FindByEmail(user.Email); exists {
-		return models.User{}, utils.NewError("Email already exists", utils.ErrCodeEmailExists)
-	}
+	//if _, exists := us.repo.FindByEmail(user.Email); exists {
+	//	return models.User{}, utils.NewError("Email already exists", utils.ErrCodeEmailExists)
+	//}
 
 	user.UUID = uuid.New().String()
 
@@ -89,18 +89,18 @@ func (us *userService) UpdateUser(uuid string, user models.User) (models.User, e
 		return models.User{}, utils.NewError("Email already exists", utils.ErrCodeEmailExists)
 	}
 
-	current_user, ok := us.repo.FindByUUID(uuid)
+	//current_user, ok := us.repo.FindByUUID(uuid)
 
-	if !ok {
-		return models.User{}, utils.NewError("User not found", utils.ErrCodeNotFound)
-	}
+	//if !ok {
+	//	return models.User{}, utils.NewError("User not found", utils.ErrCodeNotFound)
+	//}
 
-	current_user.Name = user.Name
-	current_user.Email = utils.NormalizeString(user.Email)
-	current_user.Age = user.Age
-	current_user.Status = user.Status
-	current_user.Level = user.Level
-
+	//current_user.Name = user.Name
+	//current_user.Email = utils.NormalizeString(user.Email)
+	//current_user.Age = user.Age
+	//current_user.Status = user.Status
+	//current_user.Level = user.Level
+	var current_user models.User
 	if user.Password != "" {
 		hashed_password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
@@ -120,10 +120,10 @@ func (us *userService) DeleteUser(uuid string) error {
 	return us.repo.Delete(uuid)
 }
 
-func (us *userService) GetUserByUUID(uuid string) (models.User, error) {
-	user, ok := us.repo.FindByUUID(uuid)
-	if !ok {
-		return models.User{}, utils.NewError("User not found", utils.ErrCodeNotFound)
+func (us *userService) GetUserByUUID(uuid string, user *models.User) error {
+	err := us.repo.FindByUUID(uuid, user)
+	if err != nil {
+		return err
 	}
-	return user, nil
+	return nil
 }

@@ -3,6 +3,7 @@ package handler
 import (
 	"log"
 	"main/internal/dto"
+	"main/internal/models"
 	"main/internal/services"
 	"main/internal/utils"
 	"main/internal/validation"
@@ -16,7 +17,8 @@ type UserHandler struct {
 }
 
 type GetUserByUUIDParams struct {
-	Uuid string `uri:"uuid" binding:"required,uuid"`
+	Uuid string `uri:"uuid"`
+	id   string `uri:"id" `
 }
 
 type GetUsersParams struct {
@@ -69,7 +71,8 @@ func (h *UserHandler) GetUserByUUID(c *gin.Context) {
 		utils.ResponseValidator(c, validation.HandleValidationErrors(err))
 		return
 	}
-	user, err := h.service.GetUserByUUID(params.Uuid)
+	var user models.User
+	err := h.service.GetUserByUUID(params.Uuid, &user)
 	if err != nil {
 		utils.ReponseErr(c, err)
 		return
@@ -85,8 +88,9 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 		utils.ResponseValidator(ctx, validation.HandleValidationErrors(err))
 		return
 	}
-	new_user := input.MapCreateUserInputToModel()
-	created_user, err := h.service.CreateUser(new_user)
+	user := input.MapCreateUserInputToModel()
+	log.Printf("Create user: %s", user)
+	created_user, err := h.service.CreateUser(user)
 
 	if err != nil {
 		utils.ReponseErr(ctx, err)

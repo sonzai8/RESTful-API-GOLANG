@@ -22,15 +22,15 @@ func (r *InMemoryUserRepository) FindAll(search string, page, limit int) ([]mode
 	return r.users, nil
 }
 
-func (r *InMemoryUserRepository) FindByUUID(uuid string) (models.User, bool) {
+func (r *InMemoryUserRepository) FindByUUID(uuid string, user *models.User) error {
 
 	for _, user := range r.users {
 		if user.UUID == uuid {
-			return user, true
+			return nil
 		}
 	}
 
-	return models.User{}, false
+	return nil
 }
 
 func (r *InMemoryUserRepository) FindByEmail(email string) (models.User, bool) {

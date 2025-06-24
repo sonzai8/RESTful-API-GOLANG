@@ -15,7 +15,7 @@ importdb:
 	docker exec -i postgres-db psql -U root -d master-golang < ./backupdb-master-golang.sql
 exportdb:
 	docker exec -i postgres-db pg_dump -U root -d master-golang > ./backupdb-master-golang.sql
-server:
+dev:
 	go run .
 # create a new migration (make migrate-create name=profiles)
 migrate-create:
@@ -42,4 +42,4 @@ migrate-force:
 migrate-drop:
 	migrate -path $(MIGRATE_DIR) -database $(CONN_STRING) drop
 
-.PHONY: importdb exportdb server migrate-up migrate-down migrate-create migrate-force migrate-drop migrate-goto migrate-down-n
+.PHONY: importdb exportdb dev migrate-up migrate-down migrate-create migrate-force migrate-drop migrate-goto migrate-down-n
